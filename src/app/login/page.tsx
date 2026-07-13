@@ -1,11 +1,27 @@
 "use client"
 import { signIn } from "next-auth/react"
 import { useSearchParams } from "next/navigation"
+import { Suspense } from "react"
 
-export default function LoginPage() {
+function LoginButton() {
   const searchParams = useSearchParams()
   const from = searchParams.get('from') || '/'
 
+  return (
+    <button 
+      onClick={() => signIn('google', { callbackUrl: from })}
+      className="w-full relative group overflow-hidden rounded-xl p-[1px]"
+    >
+      <span className="absolute inset-0 bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 opacity-70 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="relative flex items-center justify-center gap-3 bg-black/80 px-6 py-4 rounded-xl transition-all duration-300 group-hover:bg-black/50">
+        <i className="bx bxl-google text-2xl text-white"></i>
+        <span className="text-white font-medium tracking-wide">Continue with Google</span>
+      </div>
+    </button>
+  )
+}
+
+export default function LoginPage() {
   return (
     <div className="flex h-screen w-full items-center justify-center relative overflow-hidden bg-black/90">
       {/* Background Orbs */}
@@ -22,16 +38,9 @@ export default function LoginPage() {
         <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">WJEXSTUDIO OS</h1>
         <p className="text-gray-400 text-sm mb-10 text-center">Secure Access Gateway. Only authorized admins may enter.</p>
 
-        <button 
-          onClick={() => signIn('google', { callbackUrl: from })}
-          className="w-full relative group overflow-hidden rounded-xl p-[1px]"
-        >
-          <span className="absolute inset-0 bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 opacity-70 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="relative flex items-center justify-center gap-3 bg-black/80 px-6 py-4 rounded-xl transition-all duration-300 group-hover:bg-black/50">
-            <i className="bx bxl-google text-2xl text-white"></i>
-            <span className="text-white font-medium tracking-wide">Continue with Google</span>
-          </div>
-        </button>
+        <Suspense fallback={<div className="w-full h-[56px] rounded-xl bg-white/10 animate-pulse"></div>}>
+          <LoginButton />
+        </Suspense>
 
         <div className="mt-8 text-xs text-gray-500 flex items-center gap-2">
           <i className="bx bx-shield-alt-2"></i>
