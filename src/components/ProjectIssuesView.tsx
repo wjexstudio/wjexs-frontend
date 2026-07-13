@@ -153,23 +153,37 @@ export default function ProjectIssuesView({
                       </div>
                     </div>
                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={() => sendToQuests(issue)}
-                        title="Send to Quests"
-                        className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 rounded-lg font-medium transition-colors"
-                      >
-                        <Send className="w-3.5 h-3.5" /> Do this
-                      </button>
-                      <button 
-                        onClick={() => {
+                      <div className="relative group/btn">
+                        <button 
+                          onClick={() => sendToQuests(issue)}
+                          className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 rounded-lg font-medium transition-colors"
+                        >
+                          <Send className="w-3.5 h-3.5" /> Do this
+                        </button>
+                        
+                        {/* Custom Tooltip */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-zinc-800 text-zinc-200 text-xs font-medium rounded opacity-0 group-hover/btn:opacity-100 pointer-events-none shadow-xl border border-white/10 whitespace-nowrap z-50 transition-opacity">
+                          Send to Quests
+                        </div>
+                      </div>
+                      
+                      <div className="relative group/edit">
+                        <button 
+                          onClick={() => {
                           setSelectedIssue(issue);
                           setFormData({ title: issue.title, body: issue.body || '', state: issue.state });
                           setView('edit');
                         }}
-                        className="p-1.5 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
+                          className="p-1.5 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        
+                        {/* Custom Tooltip */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-zinc-800 text-zinc-200 text-xs font-medium rounded opacity-0 group-hover/edit:opacity-100 pointer-events-none shadow-xl border border-white/10 whitespace-nowrap z-50 transition-opacity">
+                          Edit Issue
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
