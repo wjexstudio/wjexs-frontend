@@ -3,7 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, Zap, Book, Shield, Activity, Folder, MessageSquare, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Home, Users, Zap, Book, Shield, Activity, Folder, MessageSquare, ChevronLeft, ChevronRight, X, LogOut } from 'lucide-react';
+import { signOut } from 'next-auth/react';
 
 const MENU_ITEMS = [
   { name: 'Home', icon: Home, path: '/' },
@@ -113,6 +114,22 @@ export function Sidebar({ isCollapsed, onToggleCollapse, onCloseMobile }: Sideba
           </div>
         </div>
         
+        {/* Logout Button */}
+        <div className="relative group/logout">
+          <button 
+            onClick={() => signOut()}
+            className="w-full flex items-center justify-center p-2 rounded-xl text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-colors border border-transparent hover:border-red-400/20"
+          >
+            <LogOut size={20} />
+            {!isCollapsed && <span className="ml-2 text-sm font-medium">Logout</span>}
+          </button>
+          
+          {/* Custom Tooltip for Logout */}
+          <div className={`absolute left-full ml-2 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-zinc-800 text-zinc-200 text-xs font-medium rounded-md opacity-0 group-hover/logout:opacity-100 pointer-events-none shadow-xl border border-white/10 whitespace-nowrap z-50 transition-opacity ${!isCollapsed ? 'hidden' : ''}`}>
+            Logout
+          </div>
+        </div>
+        
         {/* System Status */}
         <div className={`relative group/status p-4 bg-[#111113] border border-white/5 rounded-xl transition-all ${isCollapsed ? 'flex justify-center items-center p-3 cursor-help' : 'text-center'}`}>
           {!isCollapsed && <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1 font-semibold whitespace-nowrap">System Status</p>}
@@ -128,12 +145,21 @@ export function Sidebar({ isCollapsed, onToggleCollapse, onCloseMobile }: Sideba
         </div>
       </div>
 
-      {/* Mobile System Status (Always expanded look) */}
-      <div className="md:hidden mt-auto p-4 bg-[#111113] border border-white/5 rounded-xl text-center">
-        <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1 font-semibold whitespace-nowrap">System Status</p>
-        <div className="flex items-center justify-center gap-2 text-sm font-medium text-emerald-400">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse min-w-2" />
-          Online
+      {/* Mobile System Status and Logout */}
+      <div className="md:hidden mt-auto flex flex-col gap-2">
+        <button 
+          onClick={() => signOut()}
+          className="w-full flex items-center justify-center p-3 rounded-xl text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-colors border border-transparent"
+        >
+          <LogOut size={18} />
+          <span className="ml-2 text-sm font-medium">Logout</span>
+        </button>
+        <div className="p-4 bg-[#111113] border border-white/5 rounded-xl text-center">
+          <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1 font-semibold whitespace-nowrap">System Status</p>
+          <div className="flex items-center justify-center gap-2 text-sm font-medium text-emerald-400">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse min-w-2" />
+            Online
+          </div>
         </div>
       </div>
       

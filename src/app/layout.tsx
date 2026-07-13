@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   description: "The premium, agentic operating system. A sleek and high-performance foundation.",
 };
 
+import { Providers } from "../components/Providers";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -16,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark h-full antialiased">
       <body className="min-h-full flex flex-col">
-        <MainLayout>{children}</MainLayout>
+        <Providers>
+          <MainLayout>{children}</MainLayout>
+        </Providers>
       </body>
     </html>
   );
