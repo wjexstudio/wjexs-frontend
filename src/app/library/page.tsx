@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Book, Folder, ExternalLink } from 'lucide-react';
 
 interface Realm {
@@ -9,17 +9,26 @@ interface Realm {
   fileCount: number;
 }
 
-const mockRealms: Realm[] = [
-  { id: '1', name: 'PROJECTS', description: 'Active and archived project workspaces', fileCount: 42 },
-  { id: '2', name: 'KNOWLEDGE', description: 'General knowledge base and concepts', fileCount: 156 },
-  { id: '3', name: 'INBOX', description: 'Unprocessed notes and ideas', fileCount: 12 },
-  { id: '4', name: 'PALM DIARY', description: 'Personal logs and reflections', fileCount: 89 },
-  { id: '5', name: 'AGENTS', description: 'Agent configurations and memories', fileCount: 24 },
-  { id: '6', name: 'SYSTEM', description: 'Core system documentation', fileCount: 18 },
-];
-
 export default function LibraryPage() {
   const VAULT_NAME = 'knowledge-base';
+  const [realms, setRealms] = useState<Realm[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('http://localhost:8080/api/v1/library/realms')
+      .then(res => res.json())
+      .then(data => {
+        const formattedRealms = data.map((r: any, idx: number) => ({
+          id: String(idx),
+          name: r.name,
+          description: `Knowledge Base Realm: ${r.name}`,
+          fileCount: 0 // Could be enhanced to fetch file counts per realm
+        }));
+        setRealms(formattedRealms);
+      })
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleOpenObsidian = (realmName: string) => {
     // In a real scenario, this would open a specific file or folder.
@@ -36,7 +45,10 @@ export default function LibraryPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockRealms.map(realm => (
+        {loading ? (
+          <div className="col-span-full text-center py-10 text-zinc-500">Loading Realms...</div>
+        ) : (
+          realms.map(realm => (
           <div key={realm.id} className="bg-[#111113] border border-white/5 rounded-2xl p-6 hover:border-white/10 transition-colors flex flex-col group">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 rounded-xl bg-zinc-800/50 text-brand-orange flex items-center justify-center group-hover:bg-brand-orange/10 transition-colors">
@@ -66,7 +78,8 @@ export default function LibraryPage() {
               </button>
             </div>
           </div>
-        ))}
+        ))
+        )}
       </div>
     </div>
   );
