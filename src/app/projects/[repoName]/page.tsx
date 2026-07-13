@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { ArrowLeft, Save, FileText, Send, Bot, CheckCircle2 } from 'lucide-react';
+import { useEffect, useState, use } from 'react';
+import { ArrowLeft, Save, FileText, Send, Bot, CheckCircle2, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import QuestsList from '@/components/QuestsList';
+import ProjectIssuesView from '@/components/ProjectIssuesView';
 
 interface PageProps {
-  params: { repoName: string };
+  params: Promise<{ repoName: string }>;
 }
 
 export default function ProjectDetail({ params }: PageProps) {
-  const { repoName } = params;
+  const { repoName } = use(params);
   
-  const [activeTab, setActiveTab] = useState<'README.md' | 'AGENTS.md'>('README.md');
+  const [activeTab, setActiveTab] = useState<'README.md' | 'AGENTS.md' | 'Issues'>('README.md');
   const [fileContent, setFileContent] = useState('');
   const [fileSha, setFileSha] = useState<string | null>(null);
   const [loadingFile, setLoadingFile] = useState(true);
@@ -24,6 +25,7 @@ export default function ProjectDetail({ params }: PageProps) {
 
   // Fetch File Content
   useEffect(() => {
+    if (activeTab === 'Issues') return;
     setLoadingFile(true);
     fetch(`http://localhost:8080/api/v1/projects/${repoName}/files/${activeTab}`)
       .then(res => {
@@ -115,8 +117,8 @@ export default function ProjectDetail({ params }: PageProps) {
         <div className="lg:col-span-2 flex flex-col bg-[#111113] border border-white/5 rounded-3xl overflow-hidden shadow-lg">
           {/* Tabs */}
           <div className="flex items-center justify-between bg-[#0c0c0e] px-4 border-b border-white/5">
-            <div className="flex">
-              {['README.md', 'AGENTS.md'].map(tab => (
+            <div className="flex overflow-x-auto hide-scrollbar">
+              {['README.md', 'AGENTS.md', 'Issues'].map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab as any)}
@@ -131,19 +133,26 @@ export default function ProjectDetail({ params }: PageProps) {
                 </button>
               ))}
             </div>
-            <button
-              onClick={handleSaveFile}
-              disabled={saving || loadingFile}
-              className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-500 disabled:bg-zinc-800 text-white text-sm font-medium rounded-xl transition-all"
-            >
-              <Save className="w-4 h-4" />
-              {saving ? 'กำลังบันทึก...' : 'Commit'}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleSaveFile}
+                disabled={saving || loadingFile}
+                className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-500 disabled:bg-zinc-800 text-white text-sm font-medium rounded-xl transition-all"
+              >
+                <Save className="w-4 h-4" />
+                {saving ? 'กำลังบันทึก...' : 'Commit'}
+              </button>
+            </div>
           </div>
           
           {/* Editor Area */}
           <div className="flex-grow relative bg-[#0c0c0e]">
-            {loadingFile ? (
+            {activeTab === 'Issues' ? (
+              <ProjectIssuesView 
+                repoName={repoName} 
+                onQuestCreated={() => setTriggerRefresh(prev => prev + 1)} 
+              />
+            ) : loadingFile ? (
               <div className="absolute inset-0 flex flex-col gap-3 items-center justify-center text-zinc-500">
                 <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
                 กำลังดึงข้อมูลจาก GitHub...

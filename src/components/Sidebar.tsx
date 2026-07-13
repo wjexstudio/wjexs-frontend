@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { Home, Users, Zap, Book, Shield, Activity, Folder, MessageSquare } from 'lucide-react';
 
 const MENU_ITEMS = [
-  { name: 'Dashboard', icon: Home, path: '/' },
+  { name: 'Home', icon: Home, path: '/' },
+  { name: 'Dashboard', icon: Activity, path: '/dashboard' },
   { name: 'Characters', icon: Users, path: '/characters' },
   { name: 'Skills', icon: Zap, path: '/skills' },
   { name: 'Quests', icon: MessageSquare, path: '/quests' },
