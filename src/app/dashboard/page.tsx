@@ -4,13 +4,13 @@ import { Users, Zap, MessageSquare, Book, Shield, Activity, Folder } from 'lucid
 
 export default function Dashboard() {
   const menus = [
-    { name: 'Characters', icon: Users, path: '/characters', desc: 'Active AI Agents: 4', color: 'text-blue-400', bg: 'bg-blue-400/10' },
-    { name: 'Skills', icon: Zap, path: '/skills', desc: 'Available Skills: 12', color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
-    { name: 'Quests', icon: MessageSquare, path: '/quests', desc: 'Pending Quests: 8', color: 'text-orange-400', bg: 'bg-orange-400/10' },
-    { name: 'Library', icon: Book, path: '/library', desc: 'Knowledge Base: Synced', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
-    { name: 'Gates', icon: Shield, path: '/gates', desc: 'Active Policies: 3', color: 'text-red-400', bg: 'bg-red-400/10' },
-    { name: 'Activity', icon: Activity, path: '/activity', desc: 'System Events: Normal', color: 'text-purple-400', bg: 'bg-purple-400/10' },
-    { name: 'Projects', icon: Folder, path: '/projects', desc: 'Active Projects: 28', color: 'text-cyan-400', bg: 'bg-cyan-400/10' },
+    { name: 'Characters', icon: Users, path: '/characters', desc: 'Active AI Agents: 4' },
+    { name: 'Skills', icon: Zap, path: '/skills', desc: 'Available Skills: 12' },
+    { name: 'Quests', icon: MessageSquare, path: '/quests', desc: 'Pending Quests: 8' },
+    { name: 'Library', icon: Book, path: '/library', desc: 'Knowledge Base: Synced' },
+    { name: 'Gates', icon: Shield, path: '/gates', desc: 'Active Policies: 3' },
+    { name: 'Activity', icon: Activity, path: '/activity', desc: 'System Events: Normal' },
+    { name: 'Projects', icon: Folder, path: '/projects', desc: 'Active Projects: 28' },
   ];
 
   return (
@@ -34,10 +34,10 @@ export default function Dashboard() {
             <Link 
               key={menu.name}
               href={menu.path}
-              className="bg-[#111113] border border-white/5 hover:border-white/20 rounded-2xl p-6 transition-all group flex flex-col items-start gap-4 hover:-translate-y-1 shadow-lg"
+              className="bg-[#111113] border border-white/5 hover:border-orange-500/30 rounded-2xl p-6 transition-all group flex flex-col items-start gap-4 hover:-translate-y-1 shadow-lg"
             >
-              <div className={`p-3 rounded-xl ${menu.bg}`}>
-                <Icon className={`w-6 h-6 ${menu.color}`} />
+              <div className="p-3 rounded-xl bg-white/5 group-hover:bg-orange-500/10 transition-colors">
+                <Icon className="w-6 h-6 text-zinc-400 group-hover:text-orange-400 transition-colors" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-white group-hover:text-brand-orange transition-colors">
