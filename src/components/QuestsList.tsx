@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { CheckCircle2, Circle } from 'lucide-react';
+
 
 interface Quest {
   id: string;
@@ -10,8 +10,10 @@ interface Quest {
   description: string | null;
   mode: string;
   priority: number;
+  dueDate: string | null;
   status: string;
   createdAt: string;
+  updatedAt: string;
 }
 
 export default function QuestsList({ projectId, triggerRefresh }: { projectId: string, triggerRefresh: number }) {
@@ -60,13 +62,13 @@ export default function QuestsList({ projectId, triggerRefresh }: { projectId: s
   return (
     <div className="flex flex-col gap-3 overflow-y-auto flex-grow pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
       {quests.map(quest => (
-        <div key={quest.id} className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-4 group hover:border-orange-500/30 transition-all flex-shrink-0">
+        <div key={quest.id} className="bg-[#0c0c0e] border border-white/5 sketchy-border p-4 group hover:border-orange-500/30 transition-all flex-shrink-0">
           <div className="flex gap-3 items-start">
             <button 
               onClick={() => updateQuestStatus(quest.id, quest.status === 'completed' ? 'pending' : 'completed')}
               className="mt-0.5 text-zinc-500 hover:text-orange-500 transition-colors flex-shrink-0"
             >
-              {quest.status === 'completed' ? <CheckCircle2 className="w-5 h-5 text-emerald-500" /> : <Circle className="w-5 h-5" />}
+              {quest.status === 'completed' ? <i className="bx bx-check-circle text-xl text-emerald-500"></i> : <i className="bx bx-circle text-xl"></i>}
             </button>
             <div>
               <p className={`text-sm ${quest.status === 'completed' ? 'line-through text-zinc-500' : 'text-zinc-200'}`}>

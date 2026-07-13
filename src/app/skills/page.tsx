@@ -33,7 +33,6 @@ export default function SkillsPage() {
   const [hoveredSkill, setHoveredSkill] = useState<Skill | null>(null);
 
   const fetchSkills = () => {
-    setLoading(true);
     setError(null);
     fetch('http://localhost:8080/api/v1/dashboard/skills')
       .then(res => {
@@ -52,6 +51,7 @@ export default function SkillsPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchSkills();
   }, []);
 
@@ -63,7 +63,7 @@ export default function SkillsPage() {
           <p className="text-sm text-zinc-400 mt-1">AI agent capabilities mapped in 2D space</p>
         </div>
         <button 
-          onClick={fetchSkills}
+          onClick={() => { setLoading(true); fetchSkills(); }}
           disabled={loading}
           className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-zinc-300 rounded-xl transition-colors disabled:opacity-50"
         >

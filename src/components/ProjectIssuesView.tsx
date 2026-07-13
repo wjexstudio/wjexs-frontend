@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { Plus, Edit2, CheckCircle2, Circle, Send } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
+
 
 interface Issue {
   number: number;
@@ -20,15 +20,14 @@ export default function ProjectIssuesView({
   onQuestCreated: () => void;
 }) {
   const [issues, setIssues] = useState<Issue[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [view, setView] = useState<'list' | 'create' | 'edit'>('list');
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   
   const [formData, setFormData] = useState({ title: '', body: '', state: 'open' });
   const [saving, setSaving] = useState(false);
 
-  const fetchIssues = async () => {
-    setLoading(true);
+  const fetchIssues = useCallback(async () => {
     try {
       const res = await fetch(`http://localhost:8080/api/v1/projects/${repoName}/issues`);
       if (res.ok) {
@@ -39,11 +38,12 @@ export default function ProjectIssuesView({
       console.error(e);
     }
     setLoading(false);
-  };
+  }, [repoName]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchIssues();
-  }, [repoName]);
+  }, [fetchIssues]);
 
   const handleCreate = async () => {
     setSaving(true);
@@ -118,7 +118,7 @@ export default function ProjectIssuesView({
               }}
               className="flex items-center gap-2 px-3 py-1.5 bg-orange-600/20 text-orange-400 hover:bg-orange-600/30 rounded-lg text-sm transition-colors"
             >
-              <Plus className="w-4 h-4" /> New Issue
+              <i className="bx bx-plus text-base"></i> New Issue
             </button>
           )}
         </div>
@@ -134,14 +134,14 @@ export default function ProjectIssuesView({
           ) : (
             <div className="space-y-3">
               {issues.map(issue => (
-                <div key={issue.number} className="p-4 rounded-xl border border-white/5 bg-white/5 flex flex-col gap-2 group hover:border-orange-500/30 transition-colors">
+                <div key={issue.number} className="p-4 sketchy-border border border-white/5 bg-white/5 flex flex-col gap-2 group hover:border-orange-500/30 transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
                       <div className="mt-0.5">
                         {issue.state === 'open' ? (
-                          <Circle className="w-4 h-4 text-emerald-400" />
+                          <i className="bx bx-circle text-base text-emerald-400"></i>
                         ) : (
-                          <CheckCircle2 className="w-4 h-4 text-purple-400" />
+                          <i className="bx bx-check-circle text-base text-purple-400"></i>
                         )}
                       </div>
                       <div>
@@ -158,7 +158,7 @@ export default function ProjectIssuesView({
                           onClick={() => sendToQuests(issue)}
                           className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 rounded-lg font-medium transition-colors"
                         >
-                          <Send className="w-3.5 h-3.5" /> Do this
+                          <i className="bx bx-send text-sm"></i> Do this
                         </button>
                         
                         {/* Custom Tooltip */}
@@ -176,7 +176,7 @@ export default function ProjectIssuesView({
                         }}
                           className="p-1.5 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg"
                         >
-                          <Edit2 className="w-3.5 h-3.5" />
+                          <i className="bx bx-edit-alt text-sm"></i>
                         </button>
                         
                         {/* Custom Tooltip */}
@@ -198,7 +198,7 @@ export default function ProjectIssuesView({
                 type="text" 
                 value={formData.title}
                 onChange={e => setFormData({ ...formData, title: e.target.value })}
-                className="w-full bg-[#0c0c0e] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-orange-500/50"
+                className="w-full bg-[#0c0c0e] border border-white/10 sketchy-border px-4 py-2.5 text-white focus:outline-none focus:border-orange-500/50"
                 placeholder="Issue title"
               />
             </div>
@@ -207,7 +207,7 @@ export default function ProjectIssuesView({
               <textarea 
                 value={formData.body}
                 onChange={e => setFormData({ ...formData, body: e.target.value })}
-                className="w-full flex-grow bg-[#0c0c0e] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50 resize-none font-mono text-sm"
+                className="w-full flex-grow bg-[#0c0c0e] border border-white/10 sketchy-border px-4 py-3 text-white focus:outline-none focus:border-orange-500/50 resize-none font-mono text-sm"
                 placeholder="Describe the issue..."
               />
             </div>
@@ -217,7 +217,7 @@ export default function ProjectIssuesView({
                 <select 
                   value={formData.state}
                   onChange={e => setFormData({ ...formData, state: e.target.value })}
-                  className="w-full bg-[#0c0c0e] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-orange-500/50"
+                  className="w-full bg-[#0c0c0e] border border-white/10 sketchy-border px-4 py-2.5 text-white focus:outline-none focus:border-orange-500/50"
                 >
                   <option value="open">Open</option>
                   <option value="closed">Closed</option>
@@ -227,14 +227,14 @@ export default function ProjectIssuesView({
             <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
               <button 
                 onClick={() => setView('list')}
-                className="px-4 py-2 rounded-xl text-sm font-medium text-zinc-300 hover:bg-white/5 transition-colors"
+                className="px-4 py-2 sketchy-border text-sm font-medium text-zinc-300 hover:bg-white/5 transition-colors"
               >
                 Cancel
               </button>
               <button 
                 onClick={view === 'create' ? handleCreate : handleUpdate}
                 disabled={saving || !formData.title.trim()}
-                className="px-4 py-2 rounded-xl text-sm font-medium bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white transition-colors"
+                className="px-4 py-2 sketchy-border text-sm font-medium bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white transition-colors"
               >
                 {saving ? 'Saving...' : view === 'create' ? 'Create Issue' : 'Update Issue'}
               </button>

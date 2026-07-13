@@ -41,3 +41,7 @@ body {
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
+
+.sketchy-border {
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px !important;
+}

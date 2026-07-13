@@ -1,14 +1,18 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { Play, Clock, Activity, Calendar, Zap, RefreshCw, PlusCircle, CheckCircle2 } from 'lucide-react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 interface Quest {
   id: string;
+  projectId: string;
   title: string;
-  project: string;
-  mode: 'do_now' | 'do_later' | 'monitor' | 'reminder';
+  description: string | null;
+  mode: string;
   priority: number;
+  dueDate: string | null;
   status: string;
+  createdAt: string;
+  updatedAt: string;
+  project?: { name: string };
 }
 
 export default function QuestsPage() {
@@ -16,35 +20,34 @@ export default function QuestsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchQuests = () => {
-    setLoading(true);
-    fetch('http://localhost:8080/api/v1/quests')
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch quests');
-        return res.json();
-      })
-      .then(data => setQuests(data))
-      .catch(err => setError(err.message))
-      .finally(() => setLoading(false));
-  };
+  const fetchQuests = useCallback(async () => {
+    try {
+      const res = await fetch('http://localhost:8080/api/v1/quests');
+      if (!res.ok) throw new Error('Failed to fetch quests');
+      const data = await res.json();
+      setQuests(data);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchQuests();
-  }, []);
+  }, [fetchQuests]);
 
   const getModeIcon = (mode: string) => {
     switch (mode) {
-      case 'do_now': return <Play size={14} className="text-emerald-400" />;
-      case 'do_later': return <Clock size={14} className="text-zinc-400" />;
-      case 'monitor': return <Activity size={14} className="text-blue-400" />;
-      case 'reminder': return <Calendar size={14} className="text-amber-400" />;
-      default: return <Clock size={14} className="text-zinc-400" />;
+      case 'do_now': return <i className="bx bx-play text-emerald-400 text-sm" />;
+      case 'do_later': return <i className="bx bx-time text-zinc-400 text-sm" />;
+      case 'monitor': return <i className="bx bx-activity text-blue-400 text-sm" />;
+      case 'reminder': return <i className="bx bx-calendar text-amber-400 text-sm" />;
+      default: return <i className="bx bx-time text-zinc-400 text-sm" />;
     }
-  };
-
-  const getModeLabel = (mode: string) => {
-    if (!mode) return 'Do Later';
-    return mode.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   };
 
   const handleModeChange = async (id: string, newMode: Quest['mode']) => {
@@ -94,22 +97,22 @@ export default function QuestsPage() {
           <p className="text-sm text-zinc-400 mt-1">Manage and assign tasks to AI Agents.</p>
         </div>
         <div className="flex gap-4">
-          <button onClick={fetchQuests} className="flex items-center gap-2 text-zinc-400 hover:text-white px-3 py-2 rounded-xl transition-colors border border-white/5 bg-white/5">
-            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+          <button onClick={() => { setLoading(true); fetchQuests(); }} className="flex items-center gap-2 text-zinc-400 hover:text-white px-3 py-2 sketchy-border transition-colors border border-white/5 bg-white/5">
+            <i className={`bx bx-refresh text-base ${loading ? 'bx-spin' : ''}`} />
             <span>Refresh</span>
           </button>
-          <button onClick={triggerScheduler} className="flex items-center gap-2 bg-brand-orange hover:bg-brand-orange/90 text-white px-4 py-2.5 rounded-xl transition-all font-medium shadow-[0_2px_10px_rgba(232,89,12,0.2)]">
-            <Zap size={16} />
+          <button onClick={triggerScheduler} className="flex items-center gap-2 bg-brand-orange hover:bg-brand-orange/90 text-white px-4 py-2.5 sketchy-border transition-all font-medium shadow-[0_2px_10px_rgba(232,89,12,0.2)]">
+            <i className="bx bx-bolt text-base" />
             <span>Manual Trigger</span>
           </button>
         </div>
       </div>
 
-      <div className="bg-[#111113] border border-white/5 rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-[#111113] border border-white/5 sketchy-border overflow-hidden shadow-sm">
         <div className="px-6 py-4 border-b border-white/5 bg-zinc-900/30 flex justify-between items-center">
           <h2 className="text-sm font-medium text-zinc-300 flex items-center gap-2">
             Active Queue
-            {loading && <RefreshCw size={14} className="animate-spin text-brand-orange" />}
+            {loading && <i className="bx bx-refresh bx-spin text-brand-orange text-sm" />}
           </h2>
           <span className="text-xs text-zinc-500 font-medium">Sorted by Priority (Milestone)</span>
         </div>
@@ -130,15 +133,15 @@ export default function QuestsPage() {
                   <h3 className={`font-medium transition-colors truncate ${quest.status === 'closed' ? 'line-through text-zinc-500' : 'text-zinc-200 group-hover:text-zinc-100'}`}>
                     {quest.title}
                   </h3>
-                  <p className="text-xs text-zinc-500 mt-1 truncate">{quest.project} • {quest.status}</p>
+                  <p className="text-xs text-zinc-500 mt-1 truncate">{quest.project?.name || quest.projectId} • {quest.status}</p>
                 </div>
 
                 <div className="flex items-center gap-4">
                   <div className="relative group/dropdown">
                     <select
                       value={quest.mode}
-                      onChange={(e) => handleModeChange(quest.id, e.target.value as any)}
-                      className="appearance-none bg-zinc-800/50 hover:bg-zinc-800 border border-white/5 text-sm font-medium text-zinc-300 rounded-lg px-3 py-1.5 pr-8 focus:outline-none focus:border-brand-orange transition-colors cursor-pointer"
+                      onChange={(e) => handleModeChange(quest.id, e.target.value)}
+                      className="appearance-none bg-zinc-800/50 hover:bg-zinc-800 border border-white/5 text-sm font-medium text-zinc-300 sketchy-border px-3 py-1.5 pr-8 focus:outline-none focus:border-brand-orange transition-colors cursor-pointer"
                     >
                       <option value="do_now">Do Now</option>
                       <option value="do_later">Do Later</option>
@@ -152,10 +155,10 @@ export default function QuestsPage() {
 
                   <button 
                     onClick={() => triggerRun(quest.id)}
-                    className="p-1.5 text-zinc-500 hover:text-emerald-400 hover:bg-emerald-400/10 rounded-lg transition-colors"
+                    className="p-1.5 text-zinc-500 hover:text-emerald-400 hover:bg-emerald-400/10 sketchy-border transition-colors"
                     title="Run Now"
                   >
-                    <Play size={18} />
+                    <i className="bx bx-play text-lg" />
                   </button>
                 </div>
               </div>

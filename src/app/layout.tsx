@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "boxicons/css/boxicons.min.css";
 import "./globals.css";
 import { MainLayout } from "../components/MainLayout";
 

@@ -1,25 +1,34 @@
 "use client";
 
 import { useEffect, useState, useMemo, useRef } from 'react';
-import { FolderGit2, CheckCircle2, Clock, ArrowUpRight, Search, Filter, ArrowDownUp, ChevronDown, Star, LayoutGrid } from 'lucide-react';
 import Link from 'next/link';
+
+interface Quest {
+  id: string;
+  projectId: string;
+  title: string;
+  description: string | null;
+  mode: string;
+  priority: number;
+  dueDate: string | null;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface Project {
   id: string;
   name: string;
   description: string | null;
+  githubRepo: string | null;
   status: string;
-  progress_percent: number;
-  total_issues: number;
-  closed_issues: number;
-  repo_url: string;
-  created_at: string;
-  updated_at: string;
-  topics: string[];
+  createdAt: string;
+  updatedAt: string;
+  quests: Quest[];
 }
 
 // Custom Dropdown Component
-function CustomDropdown({ icon: Icon, value, options, onChange }: { icon: any, value: string, options: {label: string, value: string}[], onChange: (val: string) => void }) {
+function CustomDropdown({ iconClass, value, options, onChange }: { iconClass: string, value: string, options: {label: string, value: string}[], onChange: (val: string) => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -39,17 +48,17 @@ function CustomDropdown({ icon: Icon, value, options, onChange }: { icon: any, v
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 bg-[#0c0c0e] hover:bg-[#0c0c0e] border border-white/5 hover:border-white/20 rounded-xl px-4 py-2 text-sm text-white transition-all w-[200px] justify-between focus:outline-none focus:ring-1 focus:ring-orange-500/50"
+        className="flex items-center gap-2 bg-[#0c0c0e] hover:bg-[#0c0c0e] border border-white/5 hover:border-white/20 sketchy-border px-4 py-2 text-sm text-white transition-all w-[200px] justify-between focus:outline-none focus:ring-1 focus:ring-orange-500/50"
       >
         <div className="flex items-center gap-2 truncate">
-          <Icon className="w-4 h-4 text-zinc-400" />
+          <i className={`${iconClass} text-zinc-400 text-base`} />
           <span className="truncate">{selectedLabel}</span>
         </div>
-        <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        <i className={`bx bx-chevron-down text-zinc-400 transition-transform duration-300 text-base ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-[220px] bg-zinc-900/95 backdrop-blur-xl border border-white/5 rounded-xl shadow-lg py-2 z-50 animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute top-full left-0 mt-2 w-[220px] bg-zinc-900/95 backdrop-blur-xl border border-white/5 sketchy-border shadow-lg py-2 z-50 animate-in fade-in zoom-in-95 duration-200">
           {options.map((option) => (
             <button
               key={option.value}
@@ -113,8 +122,10 @@ export default function ProjectsPage() {
         }
         return p;
       }));
-    } catch (err: any) {
-      alert('Error updating track status: ' + err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert('Error updating track status: ' + err.message);
+      }
     }
   };
 
@@ -122,7 +133,7 @@ export default function ProjectsPage() {
     let result = [...projects];
 
     if (viewMode === 'Tracked') {
-      result = result.filter((p) => p.topics?.includes('wjex-active'));
+      result = result.filter((p) => p.status === 'active');
     }
 
     if (searchQuery.trim()) {
@@ -139,15 +150,21 @@ export default function ProjectsPage() {
     result.sort((a, b) => {
       switch (sortBy) {
         case 'updated_desc':
-          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
         case 'updated_asc':
-          return new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
+          return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
         case 'created_desc':
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        case 'progress_desc':
-          return b.progress_percent - a.progress_percent;
-        case 'progress_asc':
-          return a.progress_percent - b.progress_percent;
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case 'progress_desc': {
+          const aProgress = a.quests?.length ? Math.round((a.quests.filter(q => q.status === 'completed').length / a.quests.length) * 100) : 0;
+          const bProgress = b.quests?.length ? Math.round((b.quests.filter(q => q.status === 'completed').length / b.quests.length) * 100) : 0;
+          return bProgress - aProgress;
+        }
+        case 'progress_asc': {
+          const aProgress = a.quests?.length ? Math.round((a.quests.filter(q => q.status === 'completed').length / a.quests.length) * 100) : 0;
+          const bProgress = b.quests?.length ? Math.round((b.quests.filter(q => q.status === 'completed').length / b.quests.length) * 100) : 0;
+          return aProgress - bProgress;
+        }
         case 'name_asc':
           return a.name.localeCompare(b.name);
         default:
@@ -174,7 +191,7 @@ export default function ProjectsPage() {
     { label: 'เรียงตามตัวอักษร (A-Z)', value: 'name_asc' },
   ];
 
-  const totalTracked = projects.filter(p => p.topics?.includes('wjex-active')).length;
+  const totalTracked = projects.filter(p => p.status === 'active').length;
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -183,28 +200,28 @@ export default function ProjectsPage() {
         <div>
           <div className="flex items-center gap-4">
             <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
-              <FolderGit2 className="w-8 h-8 text-orange-400" />
+              <i className="bx bx-git-repo text-orange-400 text-3xl" />
               Projects
             </h1>
             
             {/* View Mode Toggle */}
-            <div className="flex bg-[#0c0c0e] border border-white/5 rounded-xl p-1 ml-4">
+            <div className="flex bg-[#0c0c0e] border border-white/5 sketchy-border p-1 ml-4">
               <button 
                 onClick={() => setViewMode('Tracked')}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-2 px-4 py-1.5 sketchy-border text-sm font-medium transition-all ${
                   viewMode === 'Tracked' ? 'bg-orange-500/20 text-orange-400 shadow-sm' : 'text-zinc-500 hover:text-zinc-300'
                 }`}
               >
-                <Star className={`w-4 h-4 ${viewMode === 'Tracked' ? 'fill-orange-400' : ''}`} />
+                <i className={`bx ${viewMode === 'Tracked' ? 'bxs-star' : 'bx-star'}`} />
                 Active
               </button>
               <button 
                 onClick={() => setViewMode('All')}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-2 px-4 py-1.5 sketchy-border text-sm font-medium transition-all ${
                   viewMode === 'All' ? 'bg-zinc-700/50 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'
                 }`}
               >
-                <LayoutGrid className="w-4 h-4" />
+                <i className="bx bx-grid-alt" />
                 All Github
               </button>
             </div>
@@ -233,18 +250,18 @@ export default function ProjectsPage() {
         {!loading && !error && projects.length > 0 && (
           <div className="flex flex-wrap items-center gap-3 xl:justify-end">
             <div className="relative group flex-grow sm:flex-grow-0">
-              <Search className="w-4 h-4 text-zinc-400 absolute left-4 top-1/2 -tranzinc-y-1/2 group-focus-within:text-orange-400 transition-colors" />
+              <i className="bx bx-search text-zinc-400 absolute left-4 top-1/2 -tranzinc-y-1/2 group-focus-within:text-orange-400 transition-colors text-base -translate-y-1/2" />
               <input 
                 type="text" 
                 placeholder="ค้นหาโปรเจกต์..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-[#0c0c0e] hover:bg-[#0c0c0e] border border-white/5 hover:border-white/20 rounded-xl pl-11 pr-4 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all w-full sm:w-[220px]"
+                className="bg-[#0c0c0e] hover:bg-[#0c0c0e] border border-white/5 hover:border-white/20 sketchy-border pl-11 pr-4 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all w-full sm:w-[220px]"
               />
             </div>
 
-            <CustomDropdown icon={Filter} value={statusFilter} options={statusOptions} onChange={setStatusFilter} />
-            <CustomDropdown icon={ArrowDownUp} value={sortBy} options={sortOptions} onChange={setSortBy} />
+            <CustomDropdown iconClass="bx bx-filter" value={statusFilter} options={statusOptions} onChange={setStatusFilter} />
+            <CustomDropdown iconClass="bx bx-sort" value={sortBy} options={sortOptions} onChange={setSortBy} />
           </div>
         )}
       </div>
@@ -252,20 +269,20 @@ export default function ProjectsPage() {
       {loading && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="h-[200px] bg-white/5 animate-pulse rounded-2xl border border-white/5" />
+            <div key={i} className="h-[200px] bg-white/5 animate-pulse sketchy-border border border-white/5" />
           ))}
         </div>
       )}
 
       {error && (
-        <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400">
+        <div className="p-6 bg-red-500/10 border border-red-500/20 sketchy-border text-red-400">
           เกิดข้อผิดพลาดในการโหลดโปรเจกต์: {error}
         </div>
       )}
 
       {!loading && !error && filteredAndSortedProjects.length === 0 && (
-        <div className="p-16 text-center bg-[#111113] border border-white/5 rounded-3xl mt-8">
-          <FolderGit2 className="w-16 h-16 text-zinc-600 mx-auto mb-6" />
+        <div className="p-16 text-center bg-[#111113] border border-white/5 sketchy-border mt-8">
+          <i className="bx bx-git-repo text-[64px] text-zinc-600 mx-auto mb-6" />
           <h3 className="text-xl font-medium text-white mb-2">ไม่พบโปรเจกต์</h3>
           <p className="text-zinc-500">
             {viewMode === 'Tracked' && totalTracked === 0 
@@ -278,13 +295,16 @@ export default function ProjectsPage() {
       {!loading && !error && filteredAndSortedProjects.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pt-4">
           {filteredAndSortedProjects.map((project) => {
-            const isTracked = project.topics?.includes('wjex-active');
+            const isTracked = project.status === 'active';
+            const totalQuests = project.quests?.length || 0;
+            const completedQuests = project.quests?.filter(q => q.status === 'completed').length || 0;
+            const progressPercent = totalQuests > 0 ? Math.round((completedQuests / totalQuests) * 100) : 0;
 
             return (
               <Link
                 key={project.id}
                 href={`/projects/${project.name}`}
-                className="group relative flex flex-col justify-between p-6 bg-[#111113] border border-white/5 rounded-3xl hover:bg-zinc-800/60 hover:border-orange-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10 hover:-tranzinc-y-1"
+                className="group relative flex flex-col justify-between p-6 bg-[#111113] border border-white/5 sketchy-border hover:bg-zinc-800/60 hover:border-orange-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10 hover:-translate-y-1"
               >
                 <div>
                   <div className="flex justify-between items-start mb-4 gap-4">
@@ -303,12 +323,10 @@ export default function ProjectsPage() {
                         }`}
                         title={isTracked ? "Untrack Project" : "Track Project"}
                       >
-                        <Star className={`w-4 h-4 transition-colors ${
-                          isTracked ? 'text-amber-400 fill-amber-400' : 'text-zinc-500 group-hover:text-zinc-300'
-                        }`} />
+                        <i className={`bx ${isTracked ? 'bxs-star text-amber-400' : 'bx-star text-zinc-500 group-hover:text-zinc-300'} transition-colors text-base`} />
                       </button>
                       <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-orange-500/10 transition-colors">
-                        <ArrowUpRight className="w-4 h-4 text-zinc-500 group-hover:text-orange-400 transition-colors" />
+                        <i className="bx bx-link-external text-zinc-500 group-hover:text-orange-400 transition-colors text-base" />
                       </div>
                     </div>
                   </div>
@@ -321,27 +339,27 @@ export default function ProjectsPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between text-xs font-medium">
                     <span className="text-zinc-400 flex items-center gap-1.5 bg-zinc-950/30 px-2.5 py-1 rounded-md">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-orange-400" />
-                      {project.closed_issues} / {project.total_issues} Issues
+                      <i className="bx bx-check-circle text-orange-400 text-base" />
+                      {completedQuests} / {totalQuests} Quests
                     </span>
-                    <span className="text-orange-400 font-bold bg-orange-500/10 px-2.5 py-1 rounded-md">{project.progress_percent}%</span>
+                    <span className="text-orange-400 font-bold bg-orange-500/10 px-2.5 py-1 rounded-md">{progressPercent}%</span>
                   </div>
                   
                   {/* Progress Bar */}
                   <div className="w-full bg-[#0c0c0e] rounded-full h-2.5 overflow-hidden border border-white/5 shadow-inner">
                     <div
                       className="h-full rounded-full transition-all duration-1000 ease-out relative bg-gradient-to-r from-orange-600 to-orange-400"
-                      style={{ width: `${project.progress_percent}%` }}
+                      style={{ width: `${progressPercent}%` }}
                     >
                       <div className="absolute inset-0 bg-white/20" />
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between pt-5 border-t border-white/5">
-                    {project.status !== 'Active' ? (
+                    {project.status !== 'active' ? (
                       <span className={`text-[11px] px-3 py-1.5 rounded-full font-bold tracking-wide uppercase ${
-                        project.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                        project.status === 'Archived' ? 'bg-zinc-500/10 text-zinc-400 border border-zinc-500/20' :
+                        project.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                        project.status === 'archived' ? 'bg-zinc-500/10 text-zinc-400 border border-zinc-500/20' :
                         'bg-orange-500/10 text-orange-400 border border-orange-500/20'
                       }`}>
                         {project.status}
@@ -350,8 +368,8 @@ export default function ProjectsPage() {
                       <div />
                     )}
                     <span className="text-[11px] text-zinc-500 flex items-center gap-1.5 font-medium ml-auto">
-                      <Clock className="w-3.5 h-3.5" />
-                      {new Date(project.updated_at).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      <i className="bx bx-time text-sm" />
+                      {project.updatedAt ? new Date(project.updatedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
                     </span>
                   </div>
                 </div>

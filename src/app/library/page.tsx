@@ -18,7 +18,7 @@ export default function LibraryPage() {
     fetch('http://localhost:8080/api/v1/library/realms')
       .then(res => res.json())
       .then(data => {
-        const formattedRealms = data.map((r: any, idx: number) => ({
+        const formattedRealms = data.map((r: {name: string}, idx: number) => ({
           id: String(idx),
           name: r.name,
           description: `Knowledge Base Realm: ${r.name}`,
@@ -34,7 +34,7 @@ export default function LibraryPage() {
     // In a real scenario, this would open a specific file or folder.
     // For now, we link to the realm folder or index note.
     const url = `obsidian://open?vault=${VAULT_NAME}&file=${encodeURIComponent(realmName)}/INDEX.md`;
-    window.location.href = url;
+    window.location.assign(url);
   };
 
   return (
