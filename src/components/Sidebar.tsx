@@ -13,6 +13,7 @@ const MENU_ITEMS = [
   { name: 'Quests', icon: MessageSquare, path: '/quests' },
   { name: 'Library', icon: Book, path: '/library' },
   { name: 'Gates', icon: Shield, path: '/gates' },
+  { name: 'Diary Review', icon: Book, path: '/diary' },
   { name: 'Activity', icon: Activity, path: '/activity' },
   { name: 'Projects', icon: Folder, path: '/projects' },
 ];
