@@ -20,7 +20,7 @@ export default function DiaryReviewPage() {
   const [isPushing, setIsPushing] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/v1/dashboard/diary-reviews')
+    fetch('http://localhost:8090/api/v1/dashboard/diary-reviews')
       .then(res => res.json())
       .then(res => {
         if (res.status === 'success' && res.data) {
@@ -49,7 +49,7 @@ export default function DiaryReviewPage() {
     
     setIsPushing(true);
     try {
-      const res = await fetch('http://localhost:8080/api/v1/dashboard/diary-reviews/export', {
+      const res = await fetch('http://localhost:8090/api/v1/dashboard/diary-reviews/export', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

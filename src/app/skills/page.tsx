@@ -34,7 +34,7 @@ export default function SkillsPage() {
 
   const fetchSkills = () => {
     setError(null);
-    fetch('http://localhost:8080/api/v1/dashboard/skills')
+    fetch('http://localhost:8090/api/v1/dashboard/skills')
       .then(res => {
         if (!res.ok) throw new Error('API Failed');
         return res.json();

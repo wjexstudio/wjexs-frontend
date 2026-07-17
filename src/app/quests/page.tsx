@@ -22,7 +22,7 @@ export default function QuestsPage() {
 
   const fetchQuests = useCallback(async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/v1/quests');
+      const res = await fetch('http://localhost:8090/api/v1/quests');
       if (!res.ok) throw new Error('Failed to fetch quests');
       const data = await res.json();
       setQuests(data);
@@ -55,7 +55,7 @@ export default function QuestsPage() {
     setQuests(prev => prev.map(q => q.id === id ? { ...q, mode: newMode } : q));
     
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/quests/${id}/mode`, {
+      const res = await fetch(`http://localhost:8090/api/v1/quests/${id}/mode`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: newMode })
@@ -69,7 +69,7 @@ export default function QuestsPage() {
 
   const triggerRun = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/quests/${id}/run`, { method: 'POST' });
+      const res = await fetch(`http://localhost:8090/api/v1/quests/${id}/run`, { method: 'POST' });
       if (!res.ok) throw new Error('Failed to trigger run');
       alert('Quest triggered successfully!');
     } catch (err) {
@@ -80,7 +80,7 @@ export default function QuestsPage() {
 
   const triggerScheduler = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/v1/quests/trigger', { method: 'POST' });
+      const res = await fetch('http://localhost:8090/api/v1/quests/trigger', { method: 'POST' });
       if (!res.ok) throw new Error('Failed to trigger scheduler');
       alert('Scheduler triggered successfully!');
     } catch (err) {

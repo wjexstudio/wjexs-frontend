@@ -15,7 +15,7 @@ export default function ActivityPage() {
 
   const fetchActivity = () => {
     setLoading(true);
-    fetch('http://localhost:8080/api/v1/dashboard/activity')
+    fetch('http://localhost:8090/api/v1/dashboard/activity')
       .then(res => res.json())
       .then(data => {
         if (data.status === 'success' && data.data) {

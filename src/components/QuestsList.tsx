@@ -21,7 +21,7 @@ export default function QuestsList({ projectId, triggerRefresh }: { projectId: s
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:8080/api/v1/quests?projectId=${projectId}`)
+    fetch(`http://localhost:8090/api/v1/quests?projectId=${projectId}`)
       .then(res => res.json())
       .then(data => {
         setQuests(data);
@@ -35,7 +35,7 @@ export default function QuestsList({ projectId, triggerRefresh }: { projectId: s
 
   const updateQuestStatus = async (id: string, status: string) => {
     try {
-      await fetch(`http://localhost:8080/api/v1/quests/${id}`, {
+      await fetch(`http://localhost:8090/api/v1/quests/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })

@@ -90,7 +90,7 @@ export default function ProjectsPage() {
   const [viewMode, setViewMode] = useState<'Tracked' | 'All'>('Tracked');
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/v1/projects')
+    fetch('http://localhost:8090/api/v1/projects')
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch projects');
         return res.json();
@@ -108,7 +108,7 @@ export default function ProjectsPage() {
   const toggleTrack = async (e: React.MouseEvent, repoName: string, currentlyTracked: boolean) => {
     e.preventDefault(); // Prevent opening the link when clicking star
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/projects/${repoName}/track`, {
+      const res = await fetch(`http://localhost:8090/api/v1/projects/${repoName}/track`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ track: !currentlyTracked })

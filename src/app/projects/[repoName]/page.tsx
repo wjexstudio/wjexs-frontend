@@ -26,7 +26,7 @@ export default function ProjectDetail({ params }: PageProps) {
   // Fetch File Content
   useEffect(() => {
     if (activeTab === 'Issues') return;
-    fetch(`http://localhost:8080/api/v1/projects/${repoName}/files/${activeTab}`)
+    fetch(`http://localhost:8090/api/v1/projects/${repoName}/files/${activeTab}`)
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch file');
         return res.json();
@@ -47,7 +47,7 @@ export default function ProjectDetail({ params }: PageProps) {
   const handleSaveFile = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/projects/${repoName}/files/${activeTab}`, {
+      const res = await fetch(`http://localhost:8090/api/v1/projects/${repoName}/files/${activeTab}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -72,7 +72,7 @@ export default function ProjectDetail({ params }: PageProps) {
   const handleSendQuest = async () => {
     if (!questInput.trim()) return;
     try {
-      await fetch(`http://localhost:8080/api/v1/quests`, {
+      await fetch(`http://localhost:8090/api/v1/quests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

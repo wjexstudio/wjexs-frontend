@@ -25,7 +25,7 @@ export default function GatesPage() {
 
   const fetchRules = () => {
     setLoading(true);
-    fetch('http://localhost:8080/api/v1/dashboard/gates')
+    fetch('http://localhost:8090/api/v1/dashboard/gates')
       .then(res => res.json())
       .then(data => {
         setRules(data);
@@ -47,7 +47,7 @@ export default function GatesPage() {
     
     const connectSSE = () => {
       setWsStatus('connecting');
-      eventSource = new EventSource('http://localhost:8080/api/v1/dashboard/gates/events');
+      eventSource = new EventSource('http://localhost:8090/api/v1/dashboard/gates/events');
       
       eventSource.onmessage = (e) => {
         const data = JSON.parse(e.data);
@@ -78,7 +78,7 @@ export default function GatesPage() {
     setRules(prev => prev.map(r => r.id === id ? { ...r, active: !currentState } : r));
     
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/dashboard/gates/${id}/toggle`, {
+      const res = await fetch(`http://localhost:8090/api/v1/dashboard/gates/${id}/toggle`, {
         method: 'PATCH'
       });
       if (!res.ok) throw new Error('Toggle failed');

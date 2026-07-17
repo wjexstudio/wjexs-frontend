@@ -29,7 +29,7 @@ export default function ProjectIssuesView({
 
   const fetchIssues = useCallback(async () => {
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/projects/${repoName}/issues`);
+      const res = await fetch(`http://localhost:8090/api/v1/projects/${repoName}/issues`);
       if (res.ok) {
         const data = await res.json();
         setIssues(data);
@@ -48,7 +48,7 @@ export default function ProjectIssuesView({
   const handleCreate = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/projects/${repoName}/issues`, {
+      const res = await fetch(`http://localhost:8090/api/v1/projects/${repoName}/issues`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: formData.title, body: formData.body })
@@ -67,7 +67,7 @@ export default function ProjectIssuesView({
     if (!selectedIssue) return;
     setSaving(true);
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/projects/${repoName}/issues/${selectedIssue.number}`, {
+      const res = await fetch(`http://localhost:8090/api/v1/projects/${repoName}/issues/${selectedIssue.number}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: formData.title, body: formData.body, state: formData.state })
@@ -84,7 +84,7 @@ export default function ProjectIssuesView({
 
   const sendToQuests = async (issue: Issue) => {
     try {
-      await fetch(`http://localhost:8080/api/v1/quests`, {
+      await fetch(`http://localhost:8090/api/v1/quests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

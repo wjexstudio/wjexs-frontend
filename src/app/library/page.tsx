@@ -15,7 +15,7 @@ export default function LibraryPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/v1/library/realms')
+    fetch('http://localhost:8090/api/v1/library/realms')
       .then(res => res.json())
       .then(data => {
         const formattedRealms = data.map((r: {name: string}, idx: number) => ({
